@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIP 專屬訂購系統｜VICTORY STRENGTH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0d0f;
+    --panel:#18181b;
+    --panel-2:#1f1f23;
+    --line:#2c2c31;
+    --text:#f2f1ec;
+    --muted:#8f8f96;
+    --gold:#c9a227;
+    --gold-bright:#e9c766;
+    --red:#e8432f;
+    --ok:#3fae6a;
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(201,162,39,0.07), transparent 40%),
+      radial-gradient(circle at 85% 100%, rgba(232,67,47,0.06), transparent 45%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.brand,.eyebrow{font-family:'Oswald',sans-serif; text-transform:uppercase;}
+  .mono{font-family:'Space Mono',monospace;}
+
+  /* ---------- LOGIN GATE ---------- */
+  #gate{
+    position:fixed; inset:0; z-index:999;
+    display:flex; align-items:center; justify-content:center;
+    background:
+      linear-gradient(rgba(10,10,11,0.92),rgba(10,10,11,0.96)),
+      repeating-linear-gradient(135deg, #17171a 0px, #17171a 2px, #121214 2px, #121214 22px);
+    padding:24px;
+  }
+  .gate-card{
+    width:100%; max-width:420px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:44px 36px 36px;
+    position:relative;
+  }
+  .gate-card::before{
+    content:"";
+    position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg, var(--gold), var(--red));
+  }
+  .gate-mark{font-size:11px; letter-spacing:.35em; color:var(--gold); margin-bottom:6px;}
+  .gate-card h1{font-size:26px; letter-spacing:.03em; margin:0 0 6px;}
+  .gate-sub{color:var(--muted); font-size:13.5px; line-height:1.6; margin-bottom:28px;}
+  .field label{display:block; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;}
+  .field input{
+    width:100%; background:var(--bg); border:1px solid var(--line); color:var(--text);
+    padding:14px 14px; font-size:16px; border-radius:var(--radius); letter-spacing:.05em;
+  }
+  .field input:focus{outline:none; border-color:var(--gold);}
+  #gateBtn{
+    margin-top:18px; width:100%; padding:14px; background:var(--gold); color:#141410; border:none;
+    font-family:'Oswald',sans-serif; letter-spacing:.1em; text-transform:uppercase; font-weight:600; font-size:14px;
+    cursor:pointer; transition:background .15s ease;
+  }
+  #gateBtn:hover{background:var(--gold-bright);}
+  #gateError{color:var(--red); font-size:12.5px; margin-top:10px; min-height:16px;}
+  .gate-foot{margin-top:22px; font-size:11.5px; color:#5c5c62; border-top:1px solid var(--line); padding-top:16px;}
+
+  /* ---------- LAYOUT ---------- */
+  #app{display:none; max-width:1080px; margin:0 auto; padding:0 20px 120px;}
+  header.top{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:26px 0; border-bottom:1px solid var(--line); margin-bottom:32px;
+  }
+  .brand{font-size:20px; letter-spacing:.08em;}
+  .brand span{color:var(--gold);}
+  .badge-vip{
+    font-size:10.5px; letter-spacing:.2em; color:#0d0d0f; background:var(--gold);
+    padding:5px 10px; font-family:'Oswald',sans-serif; font-weight:600;
+  }
+  section.block{margin-bottom:44px;}
+  .eyebrow{font-size:11.5px; color:var(--gold); letter-spacing:.28em; margin-bottom:8px;}
+  h2.title{font-size:24px; margin:0 0 4px; letter-spacing:.01em;}
+  .desc{color:var(--muted); font-size:13.5px; margin:0 0 20px; line-height:1.6;}
+
+  /* ---------- MAT CALCULATOR ---------- */
+  .calc-box{
+    background:linear-gradient(135deg, var(--panel-2), var(--panel));
+    border:1px solid var(--line); border-left:3px solid var(--gold);
+    padding:22px 24px; margin-bottom:22px;
+  }
+  .calc-row{display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end;}
+  .calc-field{flex:1; min-width:160px;}
+  .calc-field label{display:block; font-size:11px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px;}
+  .calc-field input{
+    width:100%; background:var(--bg); border:1px solid var(--line); color:var(--text);
+    padding:12px; font-size:15px; border-radius:var(--radius);
+  }
+  .calc-result{
+    flex:1.4; min-width:220px; background:var(--bg); border:1px dashed var(--line);
+    padding:12px 16px; font-size:13.5px; color:var(--muted);
+  }
+  .calc-result b{color:var(--gold-bright); font-size:20px; font-family:'Space Mono',monospace; display:block;}
+  .calc-apply{
+    background:var(--red); color:#fff; border:none; padding:13px 18px; font-family:'Oswald',sans-serif;
+    letter-spacing:.08em; text-transform:uppercase; font-size:13px; cursor:pointer; white-space:nowrap;
+  }
+  .calc-apply:hover{background:#ff5c46;}
+  .calc-note{font-size:11.5px; color:#6b6b70; margin-top:12px; line-height:1.6;}
+
+  /* ---------- PRODUCTS ---------- */
+  .cat-heading{
+    font-family:'Oswald',sans-serif; letter-spacing:.12em; text-transform:uppercase; font-size:13px;
+    color:var(--gold); margin:30px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--line);
+  }
+  .cat-heading:first-child{margin-top:0;}
+  .product-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; margin-bottom:6px;}
+  .variantSelect{
+    width:100%; background:var(--bg); border:1px solid var(--line); color:var(--text);
+    padding:8px 10px; font-size:12.5px; border-radius:var(--radius);
+  }
+  .card{
+    background:var(--panel); border:1px solid var(--line); display:flex; flex-direction:column;
+    transition:border-color .15s ease;
+  }
+  .card:hover{border-color:#45454c;}
+  .thumb{
+    aspect-ratio:4/3; background:
+      repeating-linear-gradient(45deg, #1c1c20, #1c1c20 10px, #202024 10px, #202024 20px);
+    display:flex; align-items:center; justify-content:center; color:#4d4d53;
+    font-family:'Oswald',sans-serif; font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+    border-bottom:1px solid var(--line); overflow:hidden;
+  }
+  .thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+  .card-body{padding:16px 16px 18px; display:flex; flex-direction:column; gap:10px; flex:1;}
+  .card-name{font-size:15.5px; font-weight:600;}
+  .card-spec{font-size:12.5px; color:var(--muted); line-height:1.5; min-height:34px;}
+  .card-price{font-family:'Space Mono',monospace; color:var(--gold-bright); font-size:16px;}
+  .qty-row{display:flex; align-items:center; justify-content:space-between; margin-top:auto; gap:10px;}
+  .qty-ctrl{display:flex; align-items:center; border:1px solid var(--line);}
+  .qty-ctrl button{
+    width:32px; height:32px; background:var(--panel-2); border:none; color:var(--text); font-size:16px; cursor:pointer;
+  }
+  .qty-ctrl button:hover{background:#26262b;}
+  .qty-ctrl input{
+    width:48px; text-align:center; background:var(--bg); border:none; border-left:1px solid var(--line);
+    border-right:1px solid var(--line); color:var(--text); height:32px; font-family:'Space Mono',monospace; font-size:13px;
+  }
+  .line-total{font-size:11.5px; color:var(--muted);}
+  .line-total b{color:var(--text);}
+
+  /* ---------- QUOTE PREVIEW ---------- */
+  #quotePanel{
+    background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--gold); padding:24px;
+  }
+  .quote-line{display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid #232327; font-size:13.5px;}
+  .quote-line.empty{color:#5c5c62; font-style:italic;}
+  .quote-sum{display:flex; justify-content:space-between; padding:10px 0; font-size:14px; color:var(--muted);}
+  .quote-total{
+    display:flex; justify-content:space-between; padding-top:16px; margin-top:6px; border-top:1px solid var(--line);
+    font-family:'Oswald',sans-serif; font-size:22px; letter-spacing:.02em;
+  }
+  .quote-total b{color:var(--gold-bright);}
+  .ship-note{font-size:11.5px; color:#6b6b70; margin-top:6px;}
+
+  /* ---------- FORM ---------- */
+  .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .form-grid .full{grid-column:1/-1;}
+  @media (max-width:640px){.form-grid{grid-template-columns:1fr;}}
+  .f-field label{display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:7px;}
+  .f-field label .req{color:var(--red); margin-left:3px;}
+  .f-field input, .f-field textarea{
+    width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--text);
+    padding:12px; font-size:14.5px; border-radius:var(--radius); font-family:'Inter',sans-serif;
+  }
+  .f-field input:focus, .f-field textarea:focus{outline:none; border-color:var(--gold);}
+
+  #sigCanvas{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:var(--radius); touch-action:none;
+    width:100%; height:160px; display:block; cursor:crosshair;
+  }
+  .sig-actions{display:flex; justify-content:space-between; align-items:center; margin-top:8px;}
+  .sig-actions button{
+    background:transparent; border:1px solid var(--line); color:var(--muted); padding:7px 12px; font-size:12px; cursor:pointer;
+  }
+  .sig-actions button:hover{color:var(--text); border-color:#45454c;}
+
+  .agree-row{display:flex; align-items:flex-start; gap:10px; margin-top:18px; font-size:13px; color:var(--muted); line-height:1.6;}
+  .agree-row input{margin-top:3px;}
+
+  #submitBtn{
+    width:100%; margin-top:26px; padding:17px; background:var(--red); color:#fff; border:none;
+    font-family:'Oswald',sans-serif; letter-spacing:.1em; text-transform:uppercase; font-size:15px; font-weight:600; cursor:pointer;
+  }
+  #submitBtn:disabled{background:#3a3a3e; color:#6b6b70; cursor:not-allowed;}
+  #submitBtn:not(:disabled):hover{background:#ff5c46;}
+  #formMsg{margin-top:14px; font-size:13px; text-align:center;}
+  #formMsg.ok{color:var(--ok);}
+  #formMsg.err{color:var(--red);}
+
+  ::selection{background:var(--gold); color:#141410;}
+</style>
+</head>
+<body>
+
+<!-- ============ 密碼登入閘門 ============ -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-mark mono">RESTRICTED ACCESS</div>
+    <h1>VIP 專屬訂購通道</h1>
+    <p class="gate-sub">本頁面僅供受邀 VIP 客戶使用。請輸入專屬通關密碼以檢視商品與報價內容。</p>
+    <div class="field">
+      <label for="pwInput">通關密碼</label>
+      <input type="password" id="pwInput" placeholder="請輸入密碼" autocomplete="off">
+    </div>
+    <button id="gateBtn">進入訂購系統</button>
+    <div id="gateError"></div>
+    <div class="gate-foot mono">VICTORY STRENGTH EQUIPMENT · PRIVATE ORDER PORTAL</div>
+  </div>
+</div>
+
+<!-- ============ 主系統 ============ -->
+<div id="app">
+  <header class="top">
+    <div class="brand">VICTORY <span>STRENGTH</span></div>
+    <div class="badge-vip">VIP ORDER PORTAL</div>
+  </header>
+
+  <!-- 坪數換算計算機 -->
+  <section class="block">
+    <div class="eyebrow">Step 01</div>
+    <h2 class="title">地墊坪數換算計算機</h2>
+    <p class="desc">每塊地墊尺寸 50cm × 50cm（4 塊 = 1 平方公尺）。輸入欲鋪設坪數，系統自動換算所需片數，並可一鍵帶入下方地墊商品的訂購數量。</p>
+    <div class="calc-box">
+      <div class="calc-row">
+        <div class="calc-field">
+          <label for="pingInput">欲鋪設坪數（坪）</label>
+          <input type="number" id="pingInput" min="0" step="0.1" placeholder="例如：6">
+        </div>
+        <div class="calc-result">
+          需要片數
+          <b id="matResult">— 片</b>
+        </div>
+        <button class="calc-apply" id="applyMatBtn">帶入地墊數量</button>
+      </div>
+      <div class="calc-note">換算公式：坪數 × 13.22 片／坪，無條件進位至整數片。（1坪 ≈ 3.3058 ㎡ ÷ 0.25 ㎡/片 ≈ 13.22 片）</div>
+    </div>
+  </section>
+
+  <!-- 商品區 -->
+  <section class="block">
+    <div class="eyebrow">Step 02</div>
+    <h2 class="title">商品訂購</h2>
+    <p class="desc">請選擇商品數量。商品明細將自動加入下方報價單。（本區商品內容請依實際 VIP 商品表更新，以下為版型示意資料）</p>
+    <div id="productGrid"></div>
+  </section>
+
+  <!-- 報價單預覽 -->
+  <section class="block">
+    <div class="eyebrow">Step 03</div>
+    <h2 class="title">動態報價單預覽</h2>
+    <div id="quotePanel">
+      <div id="quoteLines"><div class="quote-line empty">尚未選購任何商品</div></div>
+      <div class="quote-sum"><span>商品小計</span><span class="mono" id="qSubtotal">NT$ 0</span></div>
+      <div class="quote-sum"><span>運費</span><span class="mono" id="qShipping">NT$ 0</span></div>
+      <div class="quote-total"><span>報價總計</span><b class="mono" id="qTotal">NT$ 0</b></div>
+      <div class="ship-note" id="shipNote"></div>
+    </div>
+  </section>
+
+  <!-- 客戶資料與確認 -->
+  <section class="block">
+    <div class="eyebrow">Step 04</div>
+    <h2 class="title">客戶資料與報價單確認</h2>
+    <p class="desc">請確認以上報價單內容無誤後，填寫收件資料並完成電子簽名確認。</p>
+
+    <form id="orderForm">
+      <div class="form-grid">
+        <div class="f-field"><label>姓名<span class="req">*</span></label><input type="text" id="custName" required></div>
+        <div class="f-field"><label>客人聯絡電話<span class="req">*</span></label><input type="tel" id="custPhone" required></div>
+        <div class="f-field"><label>Email<span class="req">*</span></label><input type="email" id="custEmail" required></div>
+        <div class="f-field"><label>匯款後五碼</label><input type="text" id="custRemit" maxlength="5" placeholder="選填"></div>
+        <div class="f-field full"><label>收件地址（含郵遞區號）<span class="req">*</span></label><input type="text" id="custAddress" required></div>
+        <div class="f-field"><label>公司名稱</label><input type="text" id="custCompany" placeholder="選填"></div>
+        <div class="f-field"><label>統一編號</label><input type="text" id="custTaxId" maxlength="8" placeholder="選填"></div>
+      </div>
+
+      <div class="f-field full" style="margin-top:22px;">
+        <label>報價單確認簽名</label>
+        <canvas id="sigCanvas"></canvas>
+        <div class="sig-actions">
+          <span class="mono" style="font-size:11px;color:#6b6b70;">請於方框內以手指或滑鼠簽名</span>
+          <button type="button" id="clearSigBtn">清除重簽</button>
+        </div>
+      </div>
+
+      <label class="agree-row">
+        <input type="checkbox" id="agreeCheck" required>
+        <span>我已確認以上報價單品項、數量、金額與運費計算內容無誤，並同意依此內容進行訂購與後續付款作業。</span>
+      </label>
+
+      <button type="submit" id="submitBtn" disabled>送出訂單與報價單確認</button>
+      <div id="formMsg"></div>
+    </form>
+  </section>
+</div>
+
+<script>
+/* ============================================================
+   0. 設定區：密碼、商品資料、運費規則
+   ============================================================ */
+const ACCESS_PASSWORD = "VICTORY2026"; // 建議部署時改為後端驗證，勿硬編碼在前端
+const FREE_SHIPPING_THRESHOLD = 5000;  // 滿額免運門檻
+const FLAT_SHIPPING_FEE = 150;         // 未滿額固定運費
+const MAT_SIZE_M = 0.5;                // 每塊地墊邊長 (公尺)
+const MATS_PER_PING = 13.22;           // 每坪所需片數
+
+// 商品資料 — 依據 VICTORY 薈昇企業有限公司實際報價圖建立（2025/5、2025/7 版本）
+// isMat: true 代表這是「坪數換算計算機」對應的地墊商品（10mm 全區域緩衝地墊，50×50cm／片，與換算公式規格相符）
+// colors / textures：若商品有可選顏色或紋理，會顯示下拉選單，選擇內容會帶入報價單品項名稱（不影響單價）
+// note：未稅／未運費商品會於規格欄位標示，實際運費請依重量與地區另行估算
+const PRODUCTS = [
+
+  // ---- 地墊 / 訓練平台系列 ----
+  { id:"mat10", category:"地墊系列", name:"10mm 全區域鋪設緩衝地墊（單片）",
+    spec:"500×500×10mm／單片重約4.5kg／天然橡膠防水防焰無甲醛／未稅，施工運費按縣市重量另計",
+    price:500, unit:"片", isMat:true, img:"images/texture-navy-woodgrain.png",
+    colors:["深海藍","輕奶茶","水泥灰","曜石黑"] },
+  { id:"mat10-edge", category:"地墊系列", name:"10mm 地墊收邊條",
+    spec:"500(長)×50(寬)×10(厚)mm／單條計價", price:90, unit:"條", img:"images/texture-beige-woodgrain.png" },
+
+  { id:"honeycomb5", category:"地墊系列", name:"專利鏤空蜂巢減震地墊（單片）",
+    spec:"50×50×5cm厚／重11kg／獨家卡榫拼裝／百顆減震橡膠顆粒／未稅",
+    price:1850, unit:"片", img:"images/honeycomb-real-photo.jpg",
+    colors:["曜石黑","水泥灰","輕奶茶"], textures:["質感木紋","消音加強氣孔"] },
+  { id:"honeycomb5-edge", category:"地墊系列", name:"蜂巢減震地墊收邊條",
+    spec:"單條計價", price:250, unit:"條", img:"images/texture-grey-woodgrain.png" },
+
+  { id:"assemble3", category:"地墊系列", name:"專利拼裝式訓練台地墊（單片）",
+    spec:"50×50×3cm厚／獨家專利拼裝結構／未稅",
+    price:1500, unit:"片", img:"images/checkerboard-real-photo.jpg",
+    colors:["曜石黑","愛馬仕橘","海軍藍","大膽紅","水泥灰","輕奶茶"], textures:["質感木紋","棋盤格紋"] },
+  { id:"assemble3-edge", category:"地墊系列", name:"拼裝式訓練台收邊條",
+    spec:"單條計價", price:160, unit:"條", img:"images/texture-grey-weave.png" },
+
+  // ---- 整組訓練平台（預組裝尺寸／未稅未運） ----
+  { id:"platform5-2x1", category:"整組訓練平台", name:"蜂巢減震款｜2M×1M 相撲硬舉台",
+    spec:"厚度5cm蜂巢減震款／未稅，運費約NTD$800（依實際重量另計）", price:17800, unit:"台", img:"images/diagram-red-2x1.png" },
+  { id:"platform5-2x1_5", category:"整組訓練平台", name:"蜂巢減震款｜2M×1.5M 硬舉／舉重兩用訓練台",
+    spec:"厚度5cm蜂巢減震款／未稅，運費約NTD$1,200（依實際重量另計）", price:25700, unit:"台", img:"images/diagram-grey-2x1_5-large.png" },
+  { id:"platform5-2x2", category:"整組訓練平台", name:"蜂巢減震款｜2M×2M 舉重用訓練台",
+    spec:"厚度5cm蜂巢減震款／未稅，運費約NTD$1,500（依實際重量另計）", price:33600, unit:"台", img:"images/diagram-tan-2x2.png" },
+  { id:"platform5-squat", category:"整組訓練平台", name:"蜂巢減震款｜深蹲架結合式凸字型訓練台",
+    spec:"厚度5cm蜂巢減震款／未稅，運費約NTD$1,100（依實際重量另計）", price:24200, unit:"台", img:"images/diagram-blue-squat.png" },
+
+  { id:"platform3-2x1", category:"整組訓練平台", name:"拼裝式款｜2M×1M 相撲硬舉台",
+    spec:"厚度3cm拼裝式款／未稅未運（運費依重量另計）", price:13920, unit:"台", img:"images/diagram-red-2x1-labeled.png" },
+  { id:"platform3-2x1_5", category:"整組訓練平台", name:"拼裝式款｜2M×1.5M 硬舉／舉重兩用訓練台",
+    spec:"厚度3cm拼裝式款／未稅未運（運費依重量另計）", price:20240, unit:"台", img:"images/diagram-grey-2x1_5-labeled.png" },
+  { id:"platform3-2x2", category:"整組訓練平台", name:"拼裝式款｜2M×2M 舉重用訓練台",
+    spec:"厚度3cm拼裝式款／未稅未運（運費依重量另計）", price:26560, unit:"台", img:"images/diagram-orange-2x2-labeled.png" },
+  { id:"platform3-squat", category:"整組訓練平台", name:"拼裝式款｜深蹲架結合式凸字型訓練台",
+    spec:"厚度3cm拼裝式款／未稅未運（運費依重量另計）", price:19280, unit:"台", img:"images/diagram-blue-squat-labeled.png" },
+
+  // ---- 彩色技術槓片（單片計價） ----
+  { id:"plate-color-0.5", category:"彩色技術槓片", name:"彩色技術槓片 0.5KG", spec:"中碳鋼／外徑φ115×厚10.5mm／中心孔徑50.50mm／ED電著塗裝／未稅未運（單片）", price:390, unit:"片" },
+  { id:"plate-color-1", category:"彩色技術槓片", name:"彩色技術槓片 1KG", spec:"中碳鋼／外徑φ135×厚13.5mm／中心孔徑50.50mm／未稅未運（單片）", price:490, unit:"片" },
+  { id:"plate-color-1.5", category:"彩色技術槓片", name:"彩色技術槓片 1.5KG", spec:"中碳鋼／外徑φ155×厚15mm／中心孔徑50.50mm／未稅未運（單片）", price:590, unit:"片" },
+  { id:"plate-color-2", category:"彩色技術槓片", name:"彩色技術槓片 2KG", spec:"中碳鋼／外徑φ174×厚15mm／中心孔徑50.50mm／未稅未運（單片）", price:750, unit:"片" },
+  { id:"plate-color-2.5", category:"彩色技術槓片", name:"彩色技術槓片 2.5KG", spec:"中碳鋼／外徑φ190×厚15.5mm／中心孔徑50.50mm／未稅未運（單片）", price:890, unit:"片" },
+  { id:"plate-color-5", category:"彩色技術槓片", name:"彩色技術槓片 5KG", spec:"中碳鋼／外徑φ215×厚22mm／中心孔徑50.50mm／未稅未運（單片）", price:1180, unit:"片" },
+
+  // ---- KINGKONG 消光黑系列（一組兩片） ----
+  { id:"kk-5", category:"KINGKONG 消光黑系列", name:"KINGKONG 消光黑槓片 5KG", spec:"黑色天然橡膠／外徑450×厚31mm／獨家可摔式輕量結構／一組兩片，未稅", price:6120, unit:"組(兩片)" },
+  { id:"kk-10", category:"KINGKONG 消光黑系列", name:"KINGKONG 消光黑槓片 10KG", spec:"黑色天然橡膠／外徑450×厚36mm／一組兩片，未稅", price:5770, unit:"組(兩片)" },
+  { id:"kk-15", category:"KINGKONG 消光黑系列", name:"KINGKONG 消光黑槓片 15KG", spec:"黑色天然橡膠／外徑450×厚47mm／一組兩片，未稅", price:6400, unit:"組(兩片)" },
+  { id:"kk-20", category:"KINGKONG 消光黑系列", name:"KINGKONG 消光黑槓片 20KG", spec:"黑色天然橡膠／外徑450×厚58mm／一組兩片，未稅", price:6900, unit:"組(兩片)" },
+  { id:"kk-25", category:"KINGKONG 消光黑系列", name:"KINGKONG 消光黑槓片 25KG", spec:"黑色天然橡膠／外徑450×厚66mm／一組兩片，未稅", price:7450, unit:"組(兩片)" },
+
+  // ---- 限量迷彩槓片（一組兩片） ----
+  { id:"camo-5", category:"限量迷彩槓片", name:"限量迷彩槓片 5KG", spec:"灰色天然橡膠／外徑450×厚31mm／一組兩片，未稅", price:6720, unit:"組(兩片)" },
+  { id:"camo-10", category:"限量迷彩槓片", name:"限量迷彩槓片 10KG", spec:"綠色天然橡膠／外徑450×厚36mm／一組兩片，未稅", price:7460, unit:"組(兩片)" },
+  { id:"camo-15", category:"限量迷彩槓片", name:"限量迷彩槓片 15KG", spec:"黃色天然橡膠／外徑450×厚47mm／一組兩片，未稅", price:8240, unit:"組(兩片)" },
+  { id:"camo-20", category:"限量迷彩槓片", name:"限量迷彩槓片 20KG", spec:"藍色天然橡膠／外徑450×厚58mm／一組兩片，未稅", price:8780, unit:"組(兩片)" },
+  { id:"camo-25", category:"限量迷彩槓片", name:"限量迷彩槓片 25KG", spec:"紅色天然橡膠／外徑450×厚66mm／一組兩片，未稅", price:9540, unit:"組(兩片)" },
+
+  // ---- 經典彩膠款槓片（一組兩片） ----
+  { id:"classic-5", category:"經典彩膠款槓片", name:"經典彩膠款槓片 5KG", spec:"灰色天然橡膠／外徑450×厚31mm／一組兩片，未稅", price:6120, unit:"組(兩片)" },
+  { id:"classic-10", category:"經典彩膠款槓片", name:"經典彩膠款槓片 10KG", spec:"綠色天然橡膠／外徑450×厚36mm／一組兩片，未稅", price:6780, unit:"組(兩片)" },
+  { id:"classic-15", category:"經典彩膠款槓片", name:"經典彩膠款槓片 15KG", spec:"黃色天然橡膠／外徑450×厚47mm／一組兩片，未稅", price:7500, unit:"組(兩片)" },
+  { id:"classic-20", category:"經典彩膠款槓片", name:"經典彩膠款槓片 20KG", spec:"藍色天然橡膠／外徑450×厚58mm／一組兩片，未稅", price:7980, unit:"組(兩片)" },
+  { id:"classic-25", category:"經典彩膠款槓片", name:"經典彩膠款槓片 25KG", spec:"紅色天然橡膠／外徑450×厚66mm／一組兩片，未稅", price:8690, unit:"組(兩片)" },
+
+  // ---- 極輕量型教育槓片／槓鈴（2025/7 啟用） ----
+  { id:"edu-1", category:"極輕量型教育槓片", name:"教育槓片 1KG", spec:"耐衝擊複合材料＋天然止滑橡膠／直徑45mm×厚60mm／一組兩片，未稅", price:3800, unit:"組(兩片)" },
+  { id:"edu-1.5", category:"極輕量型教育槓片", name:"教育槓片 1.5KG", spec:"耐衝擊複合材料＋天然止滑橡膠／一組兩片，未稅", price:4200, unit:"組(兩片)" },
+  { id:"edu-2", category:"極輕量型教育槓片", name:"教育槓片 2KG", spec:"耐衝擊複合材料＋天然止滑橡膠／一組兩片，未稅", price:4600, unit:"組(兩片)" },
+  { id:"edu-2.5", category:"極輕量型教育槓片", name:"教育槓片 2.5KG", spec:"耐衝擊複合材料＋天然止滑橡膠／一組兩片，未稅", price:5000, unit:"組(兩片)" },
+  { id:"edu-barbell-5", category:"極輕量型教育槓片", name:"5KG 鋁製教育槓鈴", spec:"槓身直徑25mm／長2010mm／重5kg／不含運稅", price:7000, unit:"支" },
+];
+
+/* ============================================================
+   1. 密碼登入
+   ============================================================ */
+const gate = document.getElementById("gate");
+const app = document.getElementById("app");
+const pwInput = document.getElementById("pwInput");
+const gateBtn = document.getElementById("gateBtn");
+const gateError = document.getElementById("gateError");
+
+function tryLogin(){
+  if(pwInput.value.trim() === ACCESS_PASSWORD){
+    gate.style.display = "none";
+    app.style.display = "block";
+    sessionStorage.setItem("vip_ok","1");
+    initProducts();
+  } else {
+    gateError.textContent = "密碼錯誤，請確認後再試一次。";
+    pwInput.focus();
+  }
+}
+gateBtn.addEventListener("click", tryLogin);
+pwInput.addEventListener("keydown", e=>{ if(e.key==="Enter") tryLogin(); });
+
+// 若同一瀏覽器 session 已驗證過，略過重複輸入
+if(sessionStorage.getItem("vip_ok")==="1"){
+  gate.style.display="none"; app.style.display="block"; initProducts();
+}
+
+/* ============================================================
+   2. 商品渲染 + 數量控制
+   ============================================================ */
+const cartQty = {};           // { productId: qty }
+const variantSelections = {}; // { productId: { color, texture } }
+
+function initProducts(){
+  const grid = document.getElementById("productGrid");
+  grid.innerHTML = "";
+
+  // 依 category 分組，維持商品陣列原始順序
+  const categories = [];
+  PRODUCTS.forEach(p=>{ if(!categories.includes(p.category)) categories.push(p.category); });
+
+  categories.forEach(cat=>{
+    const heading = document.createElement("div");
+    heading.className = "cat-heading";
+    heading.textContent = cat;
+    grid.appendChild(heading);
+
+    const catGrid = document.createElement("div");
+    catGrid.className = "product-grid";
+    grid.appendChild(catGrid);
+
+    PRODUCTS.filter(p=>p.category===cat).forEach(p=>{
+      cartQty[p.id] = 0;
+      variantSelections[p.id] = { color: p.colors ? p.colors[0] : null, texture: p.textures ? p.textures[0] : null };
+
+      const variantHtml = `
+        ${p.colors ? `
+          <select class="variantSelect" data-id="${p.id}" data-kind="color">
+            ${p.colors.map(c=>`<option value="${c}">顏色：${c}</option>`).join("")}
+          </select>` : ""}
+        ${p.textures ? `
+          <select class="variantSelect" data-id="${p.id}" data-kind="texture">
+            ${p.textures.map(t=>`<option value="${t}">紋理：${t}</option>`).join("")}
+          </select>` : ""}
+      `;
+
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <div class="thumb">${p.img ? `<img src="${p.img}" alt="${p.name}" loading="lazy">` : "IMAGE<br>PLACEHOLDER"}</div>
+        <div class="card-body">
+          <div class="card-name">${p.name}${p.isMat ? " <span style=\"color:#c9a227;font-size:11px;\">(可用坪數換算)</span>" : ""}</div>
+          <div class="card-spec">${p.spec}</div>
+          ${variantHtml}
+          <div class="card-price">NT$ ${p.price.toLocaleString()} <span style="color:#6b6b70;font-size:11px;">／${p.unit || "件"}</span></div>
+          <div class="qty-row">
+            <div class="qty-ctrl">
+              <button type="button" data-act="minus" data-id="${p.id}">−</button>
+              <input type="number" min="0" value="0" data-id="${p.id}" class="qtyInput">
+              <button type="button" data-act="plus" data-id="${p.id}">＋</button>
+            </div>
+            <div class="line-total mono">小計 <b id="line-${p.id}">NT$0</b></div>
+          </div>
+        </div>`;
+      catGrid.appendChild(card);
+    });
+  });
+
+  grid.addEventListener("click", e=>{
+    const btn = e.target.closest("button[data-act]");
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const delta = btn.dataset.act === "plus" ? 1 : -1;
+    setQty(id, Math.max(0, (cartQty[id]||0) + delta));
+  });
+  grid.addEventListener("input", e=>{
+    if(e.target.classList.contains("qtyInput")){
+      const id = e.target.dataset.id;
+      const v = Math.max(0, parseInt(e.target.value||"0",10) || 0);
+      setQty(id, v);
+    }
+  });
+  grid.addEventListener("change", e=>{
+    if(e.target.classList.contains("variantSelect")){
+      const id = e.target.dataset.id;
+      const kind = e.target.dataset.kind;
+      variantSelections[id][kind] = e.target.value;
+      renderQuote();
+    }
+  });
+
+  renderQuote();
+}
+
+function setQty(id, qty){
+  cartQty[id] = qty;
+  const input = document.querySelector(`.qtyInput[data-id="${id}"]`);
+  if(input) input.value = qty;
+  const product = PRODUCTS.find(p=>p.id===id);
+  const lineEl = document.getElementById(`line-${id}`);
+  if(lineEl && product) lineEl.textContent = `NT$${(product.price*qty).toLocaleString()}`;
+  renderQuote();
+}
+
+function variantLabel(id){
+  const v = variantSelections[id];
+  if(!v) return "";
+  const parts = [];
+  if(v.color) parts.push(v.color);
+  if(v.texture) parts.push(v.texture);
+  return parts.length ? `（${parts.join("／")}）` : "";
+}
+
+/* ============================================================
+   3. 坪數 → 地墊片數換算
+   ============================================================ */
+const pingInput = document.getElementById("pingInput");
+const matResult = document.getElementById("matResult");
+const applyMatBtn = document.getElementById("applyMatBtn");
+
+function calcMats(ping){
+  if(!ping || ping <= 0) return 0;
+  return Math.ceil(ping * MATS_PER_PING);
+}
+pingInput.addEventListener("input", ()=>{
+  const ping = parseFloat(pingInput.value);
+  const mats = calcMats(ping);
+  matResult.textContent = mats > 0 ? `${mats} 片` : "— 片";
+});
+applyMatBtn.addEventListener("click", ()=>{
+  const ping = parseFloat(pingInput.value);
+  const mats = calcMats(ping);
+  if(mats <= 0){
+    matResult.textContent = "請先輸入坪數";
+    return;
+  }
+  const matProduct = PRODUCTS.find(p=>p.isMat);
+  if(matProduct){
+    setQty(matProduct.id, mats);
+    document.querySelector(`.qtyInput[data-id="${matProduct.id}"]`)
+      ?.scrollIntoView({behavior:"smooth", block:"center"});
+  }
+});
+
+/* ============================================================
+   4. 報價單即時計算
+   ============================================================ */
+function renderQuote(){
+  const lines = document.getElementById("quoteLines");
+  const items = PRODUCTS.filter(p=>cartQty[p.id] > 0);
+
+  if(items.length === 0){
+    lines.innerHTML = `<div class="quote-line empty">尚未選購任何商品</div>`;
+  } else {
+    lines.innerHTML = items.map(p=>{
+      const qty = cartQty[p.id];
+      const amt = p.price * qty;
+      return `<div class="quote-line"><span>${p.name}${variantLabel(p.id)} × ${qty}${p.unit ? p.unit : ""}</span><span class="mono">NT$${amt.toLocaleString()}</span></div>`;
+    }).join("");
+  }
+
+  const subtotal = items.reduce((sum,p)=> sum + p.price*cartQty[p.id], 0);
+  const shipping = subtotal === 0 ? 0 : (subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : FLAT_SHIPPING_FEE);
+  const total = subtotal + shipping;
+
+  document.getElementById("qSubtotal").textContent = `NT$ ${subtotal.toLocaleString()}`;
+  document.getElementById("qShipping").textContent = shipping === 0 ? "NT$ 0（免運）" : `NT$ ${shipping.toLocaleString()}`;
+  document.getElementById("qTotal").textContent = `NT$ ${total.toLocaleString()}`;
+
+  const shipNote = document.getElementById("shipNote");
+  if(subtotal === 0){
+    shipNote.textContent = "";
+  } else if(subtotal >= FREE_SHIPPING_THRESHOLD){
+    shipNote.textContent = `已符合滿 NT$${FREE_SHIPPING_THRESHOLD.toLocaleString()} 免運優惠。`;
+  } else {
+    shipNote.textContent = `再購買 NT$${(FREE_SHIPPING_THRESHOLD - subtotal).toLocaleString()} 即可享免運。`;
+  }
+
+  window._lastQuote = { items: items.map(p=>({
+      id:p.id, name:p.name, unit:p.unit, price:p.price, qty:cartQty[p.id],
+      amount:p.price*cartQty[p.id], variant: variantSelections[p.id]
+    })), subtotal, shipping, total };
+  updateSubmitState();
+}
+
+/* ============================================================
+   5. 電子簽名板 (Canvas)
+   ============================================================ */
+const canvas = document.getElementById("sigCanvas");
+const ctx = canvas.getContext("2d");
+let drawing = false, hasSignature = false;
+
+function resizeCanvas(){
+  const rect = canvas.getBoundingClientRect();
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = rect.width * ratio;
+  canvas.height = rect.height * ratio;
+  ctx.scale(ratio, ratio);
+  ctx.strokeStyle = "#f2f1ec";
+  ctx.lineWidth = 2.2;
+  ctx.lineCap = "round";
+}
+window.addEventListener("resize", ()=>{
+  const data = hasSignature ? canvas.toDataURL() : null;
+  resizeCanvas();
+  if(data){ const img = new Image(); img.onload=()=>ctx.drawImage(img,0,0); img.src = data; }
+});
+resizeCanvas();
+
+function getPos(e){
+  const rect = canvas.getBoundingClientRect();
+  const point = e.touches ? e.touches[0] : e;
+  return { x: point.clientX - rect.left, y: point.clientY - rect.top };
+}
+function startDraw(e){ drawing = true; hasSignature = true; const p=getPos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); e.preventDefault(); updateSubmitState(); }
+function moveDraw(e){ if(!drawing) return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); e.preventDefault(); }
+function endDraw(){ drawing = false; }
+
+canvas.addEventListener("mousedown", startDraw);
+canvas.addEventListener("mousemove", moveDraw);
+window.addEventListener("mouseup", endDraw);
+canvas.addEventListener("touchstart", startDraw, {passive:false});
+canvas.addEventListener("touchmove", moveDraw, {passive:false});
+canvas.addEventListener("touchend", endDraw);
+
+document.getElementById("clearSigBtn").addEventListener("click", ()=>{
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  hasSignature = false;
+  updateSubmitState();
+});
+
+/* ============================================================
+   6. 表單驗證與送出
+   ============================================================ */
+const agreeCheck = document.getElementById("agreeCheck");
+const submitBtn = document.getElementById("submitBtn");
+const formMsg = document.getElementById("formMsg");
+
+function updateSubmitState(){
+  const hasItems = window._lastQuote && window._lastQuote.items.length > 0;
+  submitBtn.disabled = !(hasItems && hasSignature && agreeCheck.checked);
+}
+agreeCheck.addEventListener("change", updateSubmitState);
+
+document.getElementById("orderForm").addEventListener("submit", async function(e){
+  e.preventDefault();
+  formMsg.className = ""; formMsg.textContent = "";
+
+  if(!window._lastQuote || window._lastQuote.items.length === 0){
+    formMsg.textContent = "請至少選購一項商品。"; formMsg.className = "err"; return;
+  }
+  if(!hasSignature){
+    formMsg.textContent = "請完成電子簽名。"; formMsg.className = "err"; return;
+  }
+
+  const payload = {
+    submittedAt: new Date().toISOString(),
+    customer: {
+      name: document.getElementById("custName").value.trim(),
+      phone: document.getElementById("custPhone").value.trim(),
+      email: document.getElementById("custEmail").value.trim(),
+      address: document.getElementById("custAddress").value.trim(),
+      company: document.getElementById("custCompany").value.trim(),
+      taxId: document.getElementById("custTaxId").value.trim(),
+      remitLast5: document.getElementById("custRemit").value.trim(),
+    },
+    quote: window._lastQuote,
+    agreementConfirmed: agreeCheck.checked,
+    signatureImage: canvas.toDataURL("image/png"), // base64 簽名圖檔
+  };
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "送出中...";
+
+  try{
+    // === 部署時請將下方網址換成你的後端 Webhook / Email API endpoint ===
+    const WEBHOOK_URL = "https://YOUR-BACKEND-ENDPOINT.example.com/api/vip-order";
+
+    // 示範：以 fetch POST 傳送 JSON 給後端（後端再轉寄 Email 通知管理者）
+    // const resp = await fetch(WEBHOOK_URL, {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify(payload)
+    // });
+    // if(!resp.ok) throw new Error("後端回應錯誤");
+
+    console.log("訂單資料（示範用，實際部署請改為送往後端）：", payload);
+    await new Promise(r=>setTimeout(r, 600)); // 模擬送出延遲
+
+    formMsg.textContent = "訂單已送出，我們將盡快與您聯繫確認出貨事宜！";
+    formMsg.className = "ok";
+    submitBtn.textContent = "已送出";
+  }catch(err){
+    formMsg.textContent = "送出失敗，請稍後再試或直接聯繫客服。";
+    formMsg.className = "err";
+    submitBtn.disabled = false;
+    submitBtn.textContent = "送出訂單與報價單確認";
+    console.error(err);
+  }
+});
+</script>
+</body>
+</html>
+git init
+git add .
+git commit -m "first commit
+
